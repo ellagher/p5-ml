@@ -32,6 +32,14 @@ private:
 
   // A custom comparator
   class PairComp {
+    std::pair<int, bool> p1;
+    std::pair<std::string, int> p2;
+    public:
+
+    bool operator()(Pair_type p1, Pair_type p2) const {
+      Key_compare x;
+      return x(p1.first, p2.first);
+    }
   };
 
 public:
@@ -112,6 +120,7 @@ public:
 
 private:
   // Add a BinarySearchTree private member HERE.
+  BinarySearchTree<Pair_type, PairComp> tree;
 };
 
 // You may implement member functions below using an "out-of-line" definition
@@ -124,5 +133,70 @@ private:
 //    typename Map<K, V, C>::Iterator Map<K, V, C>::begin() const {
 //      // YOUR IMPLEMENTATION GOES HERE
 //    }
+
+template <typename K, typename V, typename C>
+bool Map<K, V, C>::empty() const {
+  return tree.empty();
+}
+
+template <typename K, typename V, typename C>
+size_t Map<K, V, C>::size() const {
+  return tree.size();
+}
+
+template <typename K, typename V, typename C>
+typename Map<K, V, C>::Iterator Map<K, V, C>::find(const K& k) const {
+  V dummy_val;
+  Pair_type p = std::make_pair(k, dummy_val);
+  Iterator itr = tree.find(p);
+  return itr;
+}
+
+template <typename K, typename V, typename C>
+V& Map<K, V, C>::operator[](const K& k) {
+  Iterator itr = find(k);
+  if(itr != end()) {
+    // if the element was found, return a reference to the value
+    return itr->second;
+  }
+  else {
+    // element not found, make a dummy element
+    V dummy_val;
+    Pair_type p = std::make_pair(k, dummy_val);
+    Iterator new_itr = insert(p).first;
+    return new_itr->second;
+  }
+}
+
+//Inserts the given element into this Map if the given key
+  //           is not already contained in the Map. If the key is
+  //           already in the Map, returns an iterator to the
+  //           corresponding existing element, along with the value
+  //           false. Otherwise, inserts the given element and returns
+  //           an iterator to the newly inserted element, along with
+  //           the value true.
+template <typename K, typename V, typename C>
+std::pair<typename Map<K, V, C>::Iterator, bool> Map<K, V, C>::insert(const Pair_type &val) {
+  Iterator itr = find(val.first);
+  if(itr != tree.end()) {
+    std::pair<Iterator, bool> p = std::make_pair(itr, false);
+    return p;
+  }
+  else {
+    itr = tree.insert(val);
+    std::pair<Iterator, bool> p = std::make_pair(itr, true);
+    return p;
+  }
+}
+
+template <typename K, typename V, typename C>
+typename Map<K, V, C>::Iterator Map<K,V,C>::begin() const {
+  return tree.begin();
+}
+
+template <typename K, typename V, typename C>
+typename Map<K, V, C>::Iterator Map<K,V,C>::end() const {
+  return Iterator();
+}
 
 #endif // DO NOT REMOVE!!!
